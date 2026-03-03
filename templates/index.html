@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Studio Strait Arc · Quotation Management</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: '#8B2E14',
+                        'brand-accent': '#B1451E',
+                        'bg-warm': '#F8F5F2',
+                        'text-dark': '#1A1A1A',
+                        'text-muted': '#6B6B6B',
+                    },
+                },
+            },
+        };
+    </script>
+</head>
+<body class="min-h-screen bg-bg-warm text-text-dark flex flex-col">
+    <!-- Navbar -->
+    <header class="border-b border-neutral-200 bg-bg-warm/90 backdrop-blur">
+        <div class="max-w-6xl mx-auto flex items-center justify-between px-8 py-4">
+            <a href="/" class="text-sm tracking-[0.35em] uppercase text-text-dark">
+                Studio Strait Arc
+            </a>
+            <nav class="flex items-center gap-8 text-sm text-text-muted">
+                <a href="/admin" class="pb-1 border-b-2 border-transparent hover:border-text-muted transition-all duration-200">
+                    Admin
+                </a>
+                <a href="/quotations" class="pb-1 border-b-2 border-transparent hover:border-text-muted transition-all duration-200">
+                    All Quotations
+                </a>
+                <a href="/quotation" class="pb-1 border-b-2 border-transparent hover:border-text-muted transition-all duration-200">
+                    Create Quotation
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main -->
+    <main class="flex-1">
+        <div class="max-w-6xl mx-auto px-8 py-16">
+            <section class="max-w-3xl mx-auto text-center space-y-8">
+                <div class="space-y-4">
+                    <p class="text-xs tracking-[0.25em] uppercase text-text-muted">
+                        Internal Tool · Studio Strait Arc
+                    </p>
+                    <h1 class="text-4xl font-light tracking-wide text-text-dark">
+                        Quotation Management System
+                    </h1>
+                    <p class="text-sm text-text-muted max-w-xl mx-auto leading-relaxed">
+                        A refined interface for managing categories, subcategories and detailed interior design quotations
+                        for Studio Strait Arc projects.
+                    </p>
+                </div>
+
+                <div class="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4">
+                    <a href="/admin"
+                       class="inline-flex items-center justify-center rounded-full px-8 py-3 border border-brand text-brand text-sm tracking-wide uppercase hover:bg-brand hover:text-white transition-all duration-200">
+                        Admin Panel
+                    </a>
+                    <a href="/quotations"
+                       class="inline-flex items-center justify-center rounded-full px-8 py-3 border border-brand text-brand text-sm tracking-wide uppercase hover:bg-brand hover:text-white transition-all duration-200">
+                        All Quotations
+                    </a>
+                    <a href="/quotation"
+                       class="inline-flex items-center justify-center rounded-full px-8 py-3 bg-brand text-white text-sm tracking-wide uppercase hover:bg-brand-accent transition-all duration-200">
+                        Create Quotation
+                    </a>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-neutral-200 mt-8">
+        <div class="max-w-6xl mx-auto px-8 py-4 text-xs text-text-muted flex items-center justify-between">
+            <span>© 2026 Studio Strait Arc</span>
+            <span>Internal tools</span>
+        </div>
+    </footer>
+
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" class="fixed top-20 right-8 z-50 space-y-3"></div>
+
+    <script src="/static/toast.js"></script>
+</body>
+</html>

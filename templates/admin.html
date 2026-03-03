@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Studio Strait Arc · Admin</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brand: '#8B2E14',
+                        'brand-accent': '#B1451E',
+                        'bg-warm': '#F8F5F2',
+                        'text-dark': '#1A1A1A',
+                        'text-muted': '#6B6B6B',
+                    },
+                },
+            },
+        };
+    </script>
+</head>
+<body class="min-h-screen bg-bg-warm text-text-dark flex flex-col">
+    <!-- Navbar -->
+    <header class="border-b border-neutral-200 bg-bg-warm/90 backdrop-blur">
+        <div class="max-w-6xl mx-auto flex items-center justify-between px-8 py-4">
+            <a href="/" class="text-sm tracking-[0.35em] uppercase text-text-dark">
+                Studio Strait Arc
+            </a>
+            <nav class="flex items-center gap-8 text-sm text-text-muted">
+                <a href="/admin" class="pb-1 border-b-2 border-brand">
+                    Admin
+                </a>
+                <a href="/quotations" class="pb-1 border-b-2 border-transparent hover:border-text-muted transition-all duration-200">
+                    All Quotations
+                </a>
+                <a href="/quotation" class="pb-1 border-b-2 border-transparent hover:border-text-muted transition-all duration-200">
+                    Create Quotation
+                </a>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main -->
+    <main class="flex-1">
+        <div class="max-w-6xl mx-auto px-8 py-12 space-y-8">
+            <header class="flex items-end justify-between">
+                <div>
+                    <h1 class="text-3xl font-light tracking-wide">Master Data Management</h1>
+                    <p class="mt-1 text-xs text-text-muted uppercase tracking-[0.25em]">
+                        Categories · Subcategories · Items
+                    </p>
+                </div>
+                <a href="/" class="text-xs text-text-muted hover:text-text-dark transition-all duration-200 underline-offset-4 hover:underline">
+                    ← Back to Home
+                </a>
+            </header>
+
+            <!-- Categories Section -->
+            <section class="bg-white rounded-2xl shadow-sm border border-neutral-200 p-6 space-y-4">
+                <div class="flex items-center justify-between">
+                    <h2 class="text-2xl font-medium">Categories</h2>
+                </div>
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <input
+                        id="categoryName"
+                        type="text"
+                        placeholder="Category name"
+                        class="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-brand bg-white"
+                    />
+                    <button
+                        type="button"
+                        onclick="addCategory()"
+                        class="inline-flex items-center justify-center rounded-full px-5 py-2 bg-brand text-white text-xs tracking-wide uppercase hover:bg-brand-accent transition-all duration-200"
+                    >
+                        Add Category
+                    </button>
+                </div>
+                <div id="categoriesList" class="space-y-2 text-sm"></div>
+            </section>
+
+            <!-- Subcategories Section -->
+            <section class="bg-white rounded-2xl shadow-sm border border-neutral-200 p-6 space-y-4">
+                <h2 class="text-2xl font-medium">Subcategories</h2>
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <select
+                        id="subcategoryCategory"
+                        class="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-brand bg-white"
+                    >
+                        <option value="">Select Category</option>
+                    </select>
+                    <input
+                        id="subcategoryName"
+                        type="text"
+                        placeholder="Subcategory name"
+                        class="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-brand bg-white"
+                    />
+                    <button
+                        type="button"
+                        onclick="addSubcategory()"
+                        class="inline-flex items-center justify-center rounded-full px-5 py-2 bg-brand text-white text-xs tracking-wide uppercase hover:bg-brand-accent transition-all duration-200"
+                    >
+                        Add Subcategory
+                    </button>
+                </div>
+                <div id="subcategoriesList" class="space-y-2 text-sm"></div>
+            </section>
+
+            <!-- Items Section -->
+            <section class="bg-white rounded-2xl shadow-sm border border-neutral-200 p-6 space-y-4">
+                <h2 class="text-2xl font-medium">Items</h2>
+
+                <div class="flex flex-col sm:flex-row gap-3 items-center">
+                    <select
+                        id="itemCategory"
+                        class="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-brand bg-white"
+                    >
+                        <option value="">Select Category</option>
+                    </select>
+                    <!-- Kept for JS logic; visibility controlled via JS -->
+                    <button
+                        id="changeCategoryBtn"
+                        type="button"
+                        onclick="changeCategory()"
+                        style="display: none;"
+                        class="text-xs text-text-muted hover:text-text-dark underline underline-offset-4"
+                    >
+                        Change Category
+                    </button>
+                </div>
+
+                <div
+                    id="itemCategoryDisplay"
+                    style="display: none;"
+                    class="mt-3 rounded-xl border border-neutral-200 bg-bg-warm px-4 py-3 text-sm"
+                >
+                    <span class="text-text-muted">Selected Category:</span>
+                    <span id="selectedCategoryName" class="ml-2 font-medium text-text-dark"></span>
+                </div>
+
+                <div
+                    id="itemFormGroup"
+                    style="display: none;"
+                    class="mt-4 flex flex-col xl:flex-row gap-3"
+                >
+                    <select
+                        id="itemSubcategory"
+                        class="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-brand bg-white"
+                    >
+                        <option value="">Select Subcategory</option>
+                    </select>
+                    <input
+                        id="itemName"
+                        type="text"
+                        placeholder="Item name"
+                        class="flex-1 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-brand bg-white"
+                    />
+                    <input
+                        id="itemUOM"
+                        type="text"
+                        placeholder="UOM (e.g. Sqft, Rft, Nos)"
+                        class="w-32 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-brand bg-white"
+                    />
+                    <input
+                        id="itemRate"
+                        type="number"
+                        step="0.01"
+                        placeholder="Rate"
+                        class="w-32 rounded-lg border border-gray-300 px-3 py-2 text-sm focus:outline-none focus:ring-1 focus:ring-brand bg-white"
+                    />
+                    <button
+                        type="button"
+                        onclick="addItem()"
+                        class="inline-flex items-center justify-center rounded-full px-5 py-2 bg-brand text-white text-xs tracking-wide uppercase hover:bg-brand-accent transition-all duration-200"
+                    >
+                        Add Item
+                    </button>
+                </div>
+
+                <div id="itemsList" class="mt-4 space-y-2 text-sm"></div>
+            </section>
+        </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-neutral-200 mt-8">
+        <div class="max-w-6xl mx-auto px-8 py-4 text-xs text-text-muted flex items-center justify-between">
+            <span>© 2026 Studio Strait Arc</span>
+            <span>Admin Console</span>
+        </div>
+    </footer>
+
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" class="fixed top-20 right-8 z-50 space-y-3"></div>
+
+    <script src="/static/toast.js"></script>
+    <script src="/static/admin.js"></script>
+</body>
+</html>
