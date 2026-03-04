@@ -36,10 +36,32 @@ class ItemCreate(BaseModel):
     rate: float
 
 
+class ItemUpdate(BaseModel):
+    name: Optional[str] = None
+    subcategory_id: Optional[int] = None
+    uom: Optional[str] = None
+    rate: Optional[float] = None
+
+
 class ItemResponse(BaseModel):
     id: int
     name: str
     subcategory_id: int
+    uom: str
+    rate: float
+
+    class Config:
+        from_attributes = True
+
+
+class ItemDetailResponse(BaseModel):
+    """Item response with category and subcategory names"""
+    id: int
+    name: str
+    subcategory_id: int
+    subcategory_name: str
+    category_id: int
+    category_name: str
     uom: str
     rate: float
 

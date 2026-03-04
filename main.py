@@ -13,7 +13,7 @@ from models import Category, Subcategory, Item, Quotation, QuotationItem
 from schemas import (
     CategoryCreate, CategoryResponse,
     SubcategoryCreate, SubcategoryResponse,
-    ItemCreate, ItemResponse,
+    ItemCreate, ItemUpdate, ItemResponse, ItemDetailResponse,
     QuotationCreate, QuotationItemCreate, QuotationResponse,
     QuotationUpdate, QuotationListItem
 )
@@ -140,6 +140,51 @@ async def create_item(item: ItemCreate, db: Session = Depends(get_db)):
     return db_item
 
 
+@app.get("/api/items/detail/{item_id}", response_model=ItemDetailResponse)
+async def get_item_detail(item_id: int, db: Session = Depends(get_db)):
+    """Get a single item with full details including category and subcategory names"""
+    item = db.query(Item).join(Subcategory).join(Category).filter(Item.id == item_id).first()
+    if not item:
+        raise HTTPException(status_code=404, detail="Item not found")
+    
+    return {
+        "id": item.id,
+        "name": item.name,
+        "subcategory_id": item.subcategory_id,
+        "subcategory_name": item.subcategory.name,
+        "category_id": item.subcategory.category_id,
+        "category_name": item.subcategory.category.name,
+        "uom": item.uom,
+        "rate": item.rate
+    }
+
+
+@app.put("/api/items/{item_id}", response_model=ItemResponse)
+async def update_item(item_id: int, item_update: ItemUpdate, db: Session = Depends(get_db)):
+    """Update an existing item"""
+    item = db.query(Item).filter(Item.id == item_id).first()
+    if not item:
+        raise HTTPException(status_code=404, detail="Item not found")
+    
+    # Update fields if provided
+    if item_update.name is not None:
+        item.name = item_update.name
+    if item_update.subcategory_id is not None:
+        # Verify subcategory exists
+        subcategory = db.query(Subcategory).filter(Subcategory.id == item_update.subcategory_id).first()
+        if not subcategory:
+            raise HTTPException(status_code=404, detail="Subcategory not found")
+        item.subcategory_id = item_update.subcategory_id
+    if item_update.uom is not None:
+        item.uom = item_update.uom
+    if item_update.rate is not None:
+        item.rate = item_update.rate
+    
+    db.commit()
+    db.refresh(item)
+    return item
+
+
 @app.delete("/api/items/{item_id}")
 async def delete_item(item_id: int, db: Session = Depends(get_db)):
     item = db.query(Item).filter(Item.id == item_id).first()
@@ -149,6 +194,42 @@ async def delete_item(item_id: int, db: Session = Depends(get_db)):
     db.delete(item)
     db.commit()
     return {"message": "Item deleted successfully"}
+
+
+@app.get("/api/items/search/{search_term}", response_model=List[ItemDetailResponse])
+async def search_items(search_term: str, db: Session = Depends(get_db)):
+    """Search for items by name and return full details including category and subcategory
+    Supports partial word matching - e.g., 'shoe' will match 'shoe rack'
+    """
+    # Decode URL-encoded search term
+    from urllib.parse import unquote
+    search_term = unquote(search_term).strip()
+    
+    if not search_term:
+        return []
+    
+    # Query items with relationships loaded
+    # Use ilike for case-insensitive partial matching
+    # This will match "shoe" in "shoe rack", "wooden" in "wooden beading", etc.
+    items = db.query(Item).join(Subcategory).join(Category).filter(
+        Item.name.ilike(f"%{search_term}%")
+    ).all()
+    
+    # Convert to response format with category and subcategory names
+    result = []
+    for item in items:
+        result.append({
+            "id": item.id,
+            "name": item.name,
+            "subcategory_id": item.subcategory_id,
+            "subcategory_name": item.subcategory.name,
+            "category_id": item.subcategory.category_id,
+            "category_name": item.subcategory.category.name,
+            "uom": item.uom,
+            "rate": item.rate
+        })
+    
+    return result
 
 
 # Quotations
@@ -261,13 +342,34 @@ async def delete_quotation(quotation_id: int, db: Session = Depends(get_db)):
 
 
 @app.get("/api/quotation/{quotation_id}/pdf")
-async def get_quotation_pdf(quotation_id: int, db: Session = Depends(get_db)):
+async def get_quotation_pdf(
+    quotation_id: int, 
+    db: Session = Depends(get_db),
+    showSNo: Optional[bool] = True,
+    showSubcategory: Optional[bool] = True,
+    showItem: Optional[bool] = True,
+    showUOM: Optional[bool] = True,
+    showRate: Optional[bool] = True,
+    showQty: Optional[bool] = True,
+    showAmount: Optional[bool] = True
+):
     quotation = db.query(Quotation).filter(Quotation.id == quotation_id).first()
     if not quotation:
         raise HTTPException(status_code=404, detail="Quotation not found")
     
-    # Generate PDF
-    pdf_buffer = generate_quotation_pdf(quotation)
+    # Build column visibility dictionary
+    column_visibility = {
+        "showSNo": showSNo,
+        "showSubcategory": showSubcategory,
+        "showItem": showItem,
+        "showUOM": showUOM,
+        "showRate": showRate,
+        "showQty": showQty,
+        "showAmount": showAmount
+    }
+    
+    # Generate PDF with column visibility settings
+    pdf_buffer = generate_quotation_pdf(quotation, column_visibility)
     
     # Return PDF as streaming response
     return StreamingResponse(

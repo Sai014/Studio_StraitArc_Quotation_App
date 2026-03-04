@@ -39,6 +39,8 @@ function populateCategorySelect(selectEl) {
     });
 }
 
+let subcategorySectionCounter = 0;
+
 function addCategorySection() {
     const container = document.getElementById('categoriesContainer');
     if (!container) return;
@@ -65,36 +67,21 @@ function addCategorySection() {
                 Remove Category
             </button>
         </div>
-        <div class=\"mt-4 overflow-x-auto rounded-2xl border border-neutral-200 bg-white\">
-            <table class=\"min-w-full text-left text-sm\">
-                <thead>
-                    <tr class=\"border-b border-neutral-200\">
-                        <th class=\"px-4 py-3 text-[10px] font-semibold tracking-[0.2em] text-gray-500 uppercase\">S.No</th>
-                        <th class=\"px-4 py-3 text-[10px] font-semibold tracking-[0.2em] text-gray-500 uppercase\">Subcategory</th>
-                        <th class=\"px-4 py-3 text-[10px] font-semibold tracking-[0.2em] text-gray-500 uppercase\">Item</th>
-                        <th class=\"px-4 py-3 text-[10px] font-semibold tracking-[0.2em] text-gray-500 uppercase\">UOM</th>
-                        <th class=\"px-4 py-3 text-[10px] font-semibold tracking-[0.2em] text-gray-500 uppercase\">Rate</th>
-                        <th class=\"px-4 py-3 text-[10px] font-semibold tracking-[0.2em] text-gray-500 uppercase\">Qty</th>
-                        <th class=\"px-4 py-3 text-[10px] font-semibold tracking-[0.2em] text-gray-500 uppercase\">Amount</th>
-                        <th class=\"px-4 py-3\"></th>
-                    </tr>
-                </thead>
-                <tbody class=\"items-tbody divide-y divide-neutral-100\">
-                </tbody>
-            </table>
+        <div class=\"subcategories-container space-y-4 mt-4\">
         </div>
         <button
             type=\"button\"
-            class=\"add-row-btn inline-flex items-center justify-center rounded-full px-4 py-2 text-xs tracking-wide uppercase border border-brand text-brand hover:bg-brand hover:text-white transition-all duration-200 mt-4\">
-            Add Row
+            class=\"add-subcategory-btn inline-flex items-center justify-center rounded-full px-4 py-2 text-xs tracking-wide uppercase border border-brand text-brand hover:bg-brand hover:text-white transition-all duration-200\">
+            Add Subcategory
         </button>
     `;
 
     container.appendChild(section);
 
     const categorySelect = section.querySelector('.category-select');
-    const addRowBtn = section.querySelector('.add-row-btn');
+    const addSubcategoryBtn = section.querySelector('.add-subcategory-btn');
     const removeCategoryBtn = section.querySelector('.remove-category-btn');
+    const subcategoriesContainer = section.querySelector('.subcategories-container');
 
     if (categorySelect) {
         populateCategorySelect(categorySelect);
@@ -103,15 +90,24 @@ function addCategorySection() {
             const categoryName = categorySelect.options[categorySelect.selectedIndex]?.textContent || '';
             section.dataset.categoryId = categoryId;
             section.dataset.categoryName = categoryName;
-            // Clear rows when category changes
-            const tbody = section.querySelector('.items-tbody');
-            if (tbody) tbody.innerHTML = '';
+            // Clear all subcategory sections when category changes
+            if (subcategoriesContainer) subcategoriesContainer.innerHTML = '';
             updateGrandTotal();
         });
     }
 
-    if (addRowBtn) {
-        addRowBtn.addEventListener('click', () => addRowToSection(section));
+    if (addSubcategoryBtn) {
+        addSubcategoryBtn.addEventListener('click', () => {
+            console.log('Add Subcategory button clicked');
+            const categoryId = section.dataset.categoryId;
+            console.log('Category ID:', categoryId);
+            if (!categoryId) {
+                showWarning('Please select a category first');
+                return;
+            }
+            console.log('Calling addSubcategorySection');
+            addSubcategorySection(section, categoryId);
+        });
     }
 
     if (removeCategoryBtn) {
@@ -122,92 +118,161 @@ function addCategorySection() {
     }
 }
 
-async function addRowToSection(section) {
-    const categoryId = section.dataset.categoryId;
-    if (!categoryId) {
-        showWarning('Please select a category first');
+function addSubcategorySection(categorySection, categoryId) {
+    console.log('addSubcategorySection called with categoryId:', categoryId);
+    subcategorySectionCounter += 1;
+    const subcategorySectionId = subcategorySectionCounter;
+    const subcategoriesContainer = categorySection.querySelector('.subcategories-container');
+    console.log('Subcategories container found:', !!subcategoriesContainer);
+    if (!subcategoriesContainer) {
+        console.error('Subcategories container not found!');
         return;
     }
 
-    const tbody = section.querySelector('.items-tbody');
+    const subcategorySection = document.createElement('div');
+    subcategorySection.className =
+        'subcategory-section bg-gray-50 rounded-xl border border-neutral-200 p-4 space-y-3';
+    subcategorySection.dataset.subcategorySectionId = String(subcategorySectionId);
+    subcategorySection.dataset.categoryId = categoryId;
+
+    subcategorySection.innerHTML = `
+        <div class=\"flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between\">
+            <div class=\"flex-1\">
+                <label class=\"block text-xs font-medium tracking-wide text-text-muted uppercase mb-1\">Subcategory</label>
+                <select class=\"subcategory-select w-full rounded-lg border border-gray-300 px-3 py-2 text-sm bg-white focus:outline-none focus:ring-1 focus:ring-brand\">
+                    <option value=\"\">Select Subcategory</option>
+                </select>
+            </div>
+            <button
+                type=\"button\"
+                class=\"remove-subcategory-btn text-xs text-red-500 hover:text-red-700 transition-all duration-200 self-start sm:self-auto mt-6 sm:mt-0\">
+                Remove Subcategory
+            </button>
+        </div>
+        <div class=\"mt-3 overflow-x-auto rounded-lg border border-neutral-200 bg-white\">
+            <table class=\"min-w-full text-left text-sm\">
+                <thead>
+                    <tr class=\"border-b border-neutral-200\">
+                        <th class=\"px-4 py-2 text-[10px] font-semibold tracking-[0.2em] text-gray-500 uppercase\">S.No</th>
+                        <th class=\"px-4 py-2 text-[10px] font-semibold tracking-[0.2em] text-gray-500 uppercase\">Item</th>
+                        <th class=\"px-4 py-2 text-[10px] font-semibold tracking-[0.2em] text-gray-500 uppercase\">UOM</th>
+                        <th class=\"px-4 py-2 text-[10px] font-semibold tracking-[0.2em] text-gray-500 uppercase\">Rate</th>
+                        <th class=\"px-4 py-2 text-[10px] font-semibold tracking-[0.2em] text-gray-500 uppercase\">Qty</th>
+                        <th class=\"px-4 py-2 text-[10px] font-semibold tracking-[0.2em] text-gray-500 uppercase\">Amount</th>
+                        <th class=\"px-4 py-2\"></th>
+                    </tr>
+                </thead>
+                <tbody class=\"items-tbody divide-y divide-neutral-100\">
+                </tbody>
+            </table>
+        </div>
+        <button
+            type=\"button\"
+            class=\"add-row-btn inline-flex items-center justify-center rounded-full px-4 py-2 text-xs tracking-wide uppercase border border-brand text-brand hover:bg-brand hover:text-white transition-all duration-200\">
+            Add Row
+        </button>
+    `;
+
+    subcategoriesContainer.appendChild(subcategorySection);
+
+    const subcategorySelect = subcategorySection.querySelector('.subcategory-select');
+    const addRowBtn = subcategorySection.querySelector('.add-row-btn');
+    const removeSubcategoryBtn = subcategorySection.querySelector('.remove-subcategory-btn');
+
+    // Load subcategories for the category
+    if (subcategorySelect) {
+        loadSubcategories(categoryId).then(subcategories => {
+            subcategorySelect.innerHTML = '<option value="">Select Subcategory</option>';
+            subcategories.forEach(sub => {
+                const opt = document.createElement('option');
+                opt.value = sub.id;
+                opt.textContent = sub.name;
+                subcategorySelect.appendChild(opt);
+            });
+        });
+
+        subcategorySelect.addEventListener('change', () => {
+            const subcategoryId = subcategorySelect.value;
+            const subcategoryName = subcategorySelect.options[subcategorySelect.selectedIndex]?.textContent || '';
+            subcategorySection.dataset.subcategoryId = subcategoryId;
+            subcategorySection.dataset.subcategoryName = subcategoryName;
+            // Clear rows when subcategory changes
+            const tbody = subcategorySection.querySelector('.items-tbody');
+            if (tbody) tbody.innerHTML = '';
+            updateGrandTotal();
+        });
+    }
+
+    if (addRowBtn) {
+        addRowBtn.addEventListener('click', () => addRowToSubcategorySection(subcategorySection, categoryId));
+    }
+
+    if (removeSubcategoryBtn) {
+        removeSubcategoryBtn.addEventListener('click', () => {
+            subcategorySection.remove();
+            updateGrandTotal();
+        });
+    }
+}
+
+async function addRowToSubcategorySection(subcategorySection, categoryId) {
+    const subcategoryId = subcategorySection.dataset.subcategoryId;
+    if (!subcategoryId) {
+        showWarning('Please select a subcategory first');
+        return;
+    }
+
+    const tbody = subcategorySection.querySelector('.items-tbody');
     if (!tbody) return;
 
     const rowIndex = tbody.children.length + 1;
 
     const tr = document.createElement('tr');
     tr.innerHTML = `
-        <td class=\"row-index px-4 py-3 align-top text-sm text-text-muted\">${rowIndex}</td>
-        <td class=\"px-4 py-3 align-top\">
-            <select class=\"subcategory-select w-full rounded-lg border border-gray-300 px-2 py-1.5 text-xs bg-white focus:outline-none focus:ring-1 focus:ring-brand\">
-                <option value=\"\">Select Subcategory</option>
-            </select>
-        </td>
-        <td class=\"px-4 py-3 align-top\">
+        <td class=\"row-index px-4 py-2 align-top text-sm text-text-muted\">${rowIndex}</td>
+        <td class=\"px-4 py-2 align-top\">
             <select class=\"item-select w-full rounded-lg border border-gray-300 px-2 py-1.5 text-xs bg-white focus:outline-none focus:ring-1 focus:ring-brand\">
                 <option value=\"\">Select Item</option>
             </select>
         </td>
-        <td class=\"px-4 py-3 align-top\">
+        <td class=\"px-4 py-2 align-top\">
             <input type=\"text\" class=\"uom-input w-20 rounded-lg border border-gray-300 px-2 py-1.5 text-xs bg-gray-50\" readonly>
         </td>
-        <td class=\"px-4 py-3 align-top\">
+        <td class=\"px-4 py-2 align-top\">
             <input type=\"number\" class=\"rate-input w-24 rounded-lg border border-gray-300 px-2 py-1.5 text-xs bg-gray-50\" step=\"0.01\" readonly>
         </td>
-        <td class=\"px-4 py-3 align-top\">
+        <td class=\"px-4 py-2 align-top\">
             <input type=\"number\" class=\"quantity-input w-20 rounded-lg border border-gray-300 px-2 py-1.5 text-xs bg-white\" step=\"0.01\" min=\"0\">
         </td>
-        <td class=\"px-4 py-3 align-top\">
+        <td class=\"px-4 py-2 align-top\">
             <input type=\"number\" class=\"amount-input w-28 rounded-lg border border-gray-300 px-2 py-1.5 text-xs bg-gray-50\" step=\"0.01\" readonly>
         </td>
-        <td class=\"px-3 py-3 align-top text-right\">
+        <td class=\"px-3 py-2 align-top text-right\">
             <button type=\"button\" class=\"remove-row-btn text-xs text-red-500 hover:text-red-700 transition-all duration-200\">✕</button>
         </td>
     `;
 
     tbody.appendChild(tr);
 
-    const subcatSelect = tr.querySelector('.subcategory-select');
     const itemSelect = tr.querySelector('.item-select');
     const qtyInput = tr.querySelector('.quantity-input');
     const removeRowBtn = tr.querySelector('.remove-row-btn');
     const uomInput = tr.querySelector('.uom-input');
     const rateInput = tr.querySelector('.rate-input');
 
-    // Load subcategories for the selected category
-    if (subcatSelect) {
-        const subcategories = await loadSubcategories(categoryId);
-        subcatSelect.innerHTML = '<option value=\"\">Select Subcategory</option>';
-        subcategories.forEach(sub => {
-            const opt = document.createElement('option');
-            opt.value = sub.id;
-            opt.textContent = sub.name;
-            subcatSelect.appendChild(opt);
-        });
-
-        subcatSelect.addEventListener('change', async () => {
-            const subId = subcatSelect.value;
-            if (!itemSelect) return;
-            itemSelect.innerHTML = '<option value=\"\">Select Item</option>';
-            uomInput.value = '';
-            rateInput.value = '';
-            qtyInput.value = '';
-            tr.querySelector('.amount-input').value = '';
-            updateGrandTotal();
-
-            if (!subId) return;
-            const items = await loadItems(subId);
-            items.forEach(it => {
-                const opt = document.createElement('option');
-                opt.value = it.id;
-                opt.textContent = it.name;
-                opt.dataset.uom = it.uom;
-                opt.dataset.rate = it.rate;
-                itemSelect.appendChild(opt);
-            });
-        });
-    }
-
+    // Load items for the selected subcategory
     if (itemSelect) {
+        const items = await loadItems(subcategoryId);
+        itemSelect.innerHTML = '<option value="">Select Item</option>';
+        items.forEach(it => {
+            const opt = document.createElement('option');
+            opt.value = it.id;
+            opt.textContent = it.name;
+            opt.dataset.uom = it.uom;
+            opt.dataset.rate = it.rate;
+            itemSelect.appendChild(opt);
+        });
+
         itemSelect.addEventListener('change', () => {
             const opt = itemSelect.options[itemSelect.selectedIndex];
             if (opt && opt.value) {
@@ -287,6 +352,52 @@ function updateGrandTotal() {
     }
 }
 
+// PDF Modal functions
+function openPDFModal() {
+    const modal = document.getElementById('pdfModal');
+    if (modal) {
+        modal.style.display = 'flex';
+        modal.classList.remove('hidden');
+    }
+}
+
+function closePDFModal() {
+    const modal = document.getElementById('pdfModal');
+    if (modal) {
+        modal.style.display = 'none';
+        modal.classList.add('hidden');
+    }
+}
+
+// Make modal functions globally available
+window.openPDFModal = openPDFModal;
+window.closePDFModal = closePDFModal;
+
+// Close modal when clicking outside
+document.addEventListener('DOMContentLoaded', function() {
+    const modal = document.getElementById('pdfModal');
+    if (modal) {
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                closePDFModal();
+            }
+        });
+    }
+});
+
+// Get column visibility settings
+function getColumnVisibility() {
+    return {
+        showSNo: document.getElementById('colSNo').checked,
+        showSubcategory: document.getElementById('colSubcategory').checked,
+        showItem: document.getElementById('colItem').checked,
+        showUOM: document.getElementById('colUOM').checked,
+        showRate: document.getElementById('colRate').checked,
+        showQty: document.getElementById('colQty').checked,
+        showAmount: document.getElementById('colAmount').checked
+    };
+}
+
 // Generate PDF using all sections
 async function generatePDF() {
     const customerName = document.getElementById('customerName').value.trim();
@@ -307,44 +418,60 @@ async function generatePDF() {
     }
 
     const items = [];
-    const sections = document.querySelectorAll('.category-section');
+    const categorySections = document.querySelectorAll('.category-section');
 
-    sections.forEach(section => {
-        const categoryId = section.dataset.categoryId;
-        const categoryName = section.dataset.categoryName;
+    categorySections.forEach(categorySection => {
+        const categoryId = categorySection.dataset.categoryId;
+        const categoryName = categorySection.dataset.categoryName;
         if (!categoryId) return;
 
-        const rows = section.querySelectorAll('tbody tr');
-        rows.forEach(row => {
-            const subcatSelect = row.querySelector('.subcategory-select');
-            const itemSelect = row.querySelector('.item-select');
-            const uomInput = row.querySelector('.uom-input');
-            const rateInput = row.querySelector('.rate-input');
-            const qtyInput = row.querySelector('.quantity-input');
-            const amountInput = row.querySelector('.amount-input');
+        // Get all subcategory sections within this category
+        const subcategorySections = categorySection.querySelectorAll('.subcategory-section');
+        subcategorySections.forEach(subcategorySection => {
+            const subcategoryId = subcategorySection.dataset.subcategoryId;
+            const subcategoryName = subcategorySection.dataset.subcategoryName;
+            if (!subcategoryId) return;
 
-            const subcatId = subcatSelect.value;
-            const itemId = itemSelect.value;
-            const qty = parseFloat(qtyInput.value) || 0;
-            if (!subcatId || !itemId || qty <= 0) return;
+            // Get all rows within this subcategory section
+            const rows = subcategorySection.querySelectorAll('tbody tr');
+            rows.forEach(row => {
+                const itemSelect = row.querySelector('.item-select');
+                const uomInput = row.querySelector('.uom-input');
+                const rateInput = row.querySelector('.rate-input');
+                const qtyInput = row.querySelector('.quantity-input');
+                const amountInput = row.querySelector('.amount-input');
 
-            const subcatName = subcatSelect.options[subcatSelect.selectedIndex]?.textContent || '';
-            const itemName = itemSelect.options[itemSelect.selectedIndex]?.textContent || '';
+                const itemId = itemSelect.value;
+                const qty = parseFloat(qtyInput.value) || 0;
+                if (!itemId || qty <= 0) return;
 
-            items.push({
-                category_name: categoryName,
-                subcategory_name: subcatName,
-                item_name: itemName,
-                uom: uomInput.value,
-                quantity: qty,
-                rate: parseFloat(rateInput.value) || 0,
-                amount: parseFloat(amountInput.value) || 0
+                const itemName = itemSelect.options[itemSelect.selectedIndex]?.textContent || '';
+
+                items.push({
+                    category_name: categoryName,
+                    subcategory_name: subcategoryName,
+                    item_name: itemName,
+                    uom: uomInput.value,
+                    quantity: qty,
+                    rate: parseFloat(rateInput.value) || 0,
+                    amount: parseFloat(amountInput.value) || 0
+                });
             });
         });
     });
 
     if (items.length === 0) {
         showWarning('Please add at least one complete item row');
+        return;
+    }
+
+    // Get column visibility settings
+    const columnVisibility = getColumnVisibility();
+    
+    // Ensure at least one column is selected
+    const hasAnyColumn = Object.values(columnVisibility).some(v => v === true);
+    if (!hasAnyColumn) {
+        showWarning('Please select at least one column to display');
         return;
     }
 
@@ -356,7 +483,8 @@ async function generatePDF() {
                 customer_name: customerName,
                 project_name: projectName,
                 date: date,
-                items
+                items,
+                column_visibility: columnVisibility
             })
         });
 
@@ -366,8 +494,17 @@ async function generatePDF() {
         }
 
         const quotation = await res.json();
-        window.open(`/api/quotation/${quotation.id}/pdf`, '_blank');
+        // Pass column visibility as query parameters
+        // Convert boolean values to strings for URLSearchParams
+        const params = new URLSearchParams();
+        Object.keys(columnVisibility).forEach(key => {
+            params.append(key, columnVisibility[key].toString());
+        });
+        window.open(`/api/quotation/${quotation.id}/pdf?${params.toString()}`, '_blank');
         showSuccess('Quotation saved and PDF generated successfully!');
+        
+        // Close the modal after successful generation
+        closePDFModal();
     } catch (err) {
         console.error('Error generating PDF', err);
         showError('Error generating PDF');

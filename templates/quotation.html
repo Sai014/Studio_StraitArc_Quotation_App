@@ -121,7 +121,7 @@
             <section class="flex justify-end">
                 <button
                     type="button"
-                    onclick="generatePDF()"
+                    onclick="openPDFModal()"
                     class="inline-flex items-center justify-center rounded-full px-8 py-3 bg-brand text-white text-xs tracking-wide uppercase hover:bg-brand-accent transition-all duration-200"
                 >
                     Generate PDF
@@ -141,8 +141,70 @@
     <!-- Toast Notification Container -->
     <div id="toastContainer" class="fixed top-20 right-8 z-50 space-y-3"></div>
 
+    <!-- PDF Generation Modal -->
+    <div id="pdfModal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50" style="display: none;">
+        <div class="bg-white rounded-2xl shadow-xl max-w-lg w-full mx-4">
+            <div class="p-8">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-medium text-text-dark">PDF Column Settings</h2>
+                    <button onclick="closePDFModal()" class="text-text-muted hover:text-text-dark text-2xl leading-none transition-colors">&times;</button>
+                </div>
+                
+                <p class="text-sm text-text-muted mb-6">Select which columns to display in the PDF quotation</p>
+                
+                <div class="space-y-3 mb-8">
+                    <label class="flex items-center space-x-3 cursor-pointer group hover:bg-gray-50 p-3 rounded-lg transition-colors">
+                        <input type="checkbox" id="colSNo" checked class="w-5 h-5 rounded border-gray-300 text-brand focus:ring-2 focus:ring-brand focus:ring-offset-2 cursor-pointer">
+                        <span class="text-sm font-medium text-text-dark flex-1">S.No</span>
+                    </label>
+                    <label class="flex items-center space-x-3 cursor-pointer group hover:bg-gray-50 p-3 rounded-lg transition-colors">
+                        <input type="checkbox" id="colSubcategory" checked class="w-5 h-5 rounded border-gray-300 text-brand focus:ring-2 focus:ring-brand focus:ring-offset-2 cursor-pointer">
+                        <span class="text-sm font-medium text-text-dark flex-1">Subcategory</span>
+                    </label>
+                    <label class="flex items-center space-x-3 cursor-pointer group hover:bg-gray-50 p-3 rounded-lg transition-colors">
+                        <input type="checkbox" id="colItem" checked class="w-5 h-5 rounded border-gray-300 text-brand focus:ring-2 focus:ring-brand focus:ring-offset-2 cursor-pointer">
+                        <span class="text-sm font-medium text-text-dark flex-1">Item</span>
+                    </label>
+                    <label class="flex items-center space-x-3 cursor-pointer group hover:bg-gray-50 p-3 rounded-lg transition-colors">
+                        <input type="checkbox" id="colUOM" checked class="w-5 h-5 rounded border-gray-300 text-brand focus:ring-2 focus:ring-brand focus:ring-offset-2 cursor-pointer">
+                        <span class="text-sm font-medium text-text-dark flex-1">UOM</span>
+                    </label>
+                    <label class="flex items-center space-x-3 cursor-pointer group hover:bg-gray-50 p-3 rounded-lg transition-colors">
+                        <input type="checkbox" id="colRate" checked class="w-5 h-5 rounded border-gray-300 text-brand focus:ring-2 focus:ring-brand focus:ring-offset-2 cursor-pointer">
+                        <span class="text-sm font-medium text-text-dark flex-1">Rate</span>
+                    </label>
+                    <label class="flex items-center space-x-3 cursor-pointer group hover:bg-gray-50 p-3 rounded-lg transition-colors">
+                        <input type="checkbox" id="colQty" checked class="w-5 h-5 rounded border-gray-300 text-brand focus:ring-2 focus:ring-brand focus:ring-offset-2 cursor-pointer">
+                        <span class="text-sm font-medium text-text-dark flex-1">Qty</span>
+                    </label>
+                    <label class="flex items-center space-x-3 cursor-pointer group hover:bg-gray-50 p-3 rounded-lg transition-colors">
+                        <input type="checkbox" id="colAmount" checked class="w-5 h-5 rounded border-gray-300 text-brand focus:ring-2 focus:ring-brand focus:ring-offset-2 cursor-pointer">
+                        <span class="text-sm font-medium text-text-dark flex-1">Amount</span>
+                    </label>
+                </div>
+                
+                <div class="flex justify-end gap-3 pt-4 border-t border-neutral-200">
+                    <button 
+                        type="button" 
+                        onclick="closePDFModal()" 
+                        class="px-6 py-2.5 rounded-full border border-gray-300 text-sm font-medium tracking-wide uppercase text-text-dark hover:bg-gray-50 transition-all duration-150"
+                    >
+                        Cancel
+                    </button>
+                    <button 
+                        type="button" 
+                        onclick="generatePDF()" 
+                        class="px-6 py-2.5 rounded-full bg-brand text-white text-sm font-medium tracking-wide uppercase hover:bg-brand-accent transition-all duration-150"
+                    >
+                        Generate PDF
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <script src="/static/toast.js"></script>
-    <script src="/static/quotation.js?v=1"></script>
+    <script src="/static/quotation.js?v=3"></script>
 </body>
 </html>
 
